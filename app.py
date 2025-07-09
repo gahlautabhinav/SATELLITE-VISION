@@ -9,6 +9,8 @@ import pandas as pd
 from datetime import datetime
 import base64
 import io
+import os
+import gdown
 
 # --- Page Config ---
 st.set_page_config(
@@ -290,10 +292,18 @@ st.markdown("""
 # --- Load the Model ---
 @st.cache_resource
 def load_model():
+    model_path = "Modelenv.v1.h5"
+    file_id = "1piifNuEiXHzSlGmG2H7-zR-k08C3tPMx"  # from your Google Drive link
+    gdrive_url = f"https://drive.google.com/uc?id={file_id}"
+
+    if not os.path.exists(model_path):
+        with st.spinner("🔄 Downloading AI model from Google Drive..."):
+            gdown.download(gdrive_url, model_path, quiet=False)
+    
     try:
-        return tf.keras.models.load_model("Modelenv.v1.h5")
-    except:
-        st.error("⚠️ Model file 'Modelenv.v1.h5' not found. Please ensure the model is in the correct directory.")
+        return tf.keras.models.load_model(model_path)
+    except Exception as e:
+        st.error(f"⚠️ Failed to load model: {e}")
         return None
 
 model = load_model()
